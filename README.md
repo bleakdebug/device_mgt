@@ -1,10 +1,10 @@
 # Device Management System
 
-## 📋 项目简介
+##  项目简介
 
 Device Management System（设备管理系统）是一个基于 Spring Boot 2.1.5 开发的工业设备管理平台。系统提供了完整的设备信息管理、组装线监控、质量检测等功能，支持设备管理员和超级管理员两种角色，实现了权限控制和数据隔离。
 
-## ✨ 主要功能
+##  主要功能
 
 ### 1. 设备管理 (Device Management)
 -  设备信息的增删改查
