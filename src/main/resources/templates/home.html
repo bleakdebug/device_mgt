@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Management System - Home</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header .user-info {
+            text-align: right;
+        }
+        
+        .header .user-info .admin-name {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+        
+        .header .user-info .admin-type {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .header .logout-btn {
+            margin-top: 10px;
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        
+        .header .logout-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+        
+        .nav {
+            background: #f8f9fa;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .nav a {
+            display: inline-block;
+            padding: 12px 30px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 5px;
+            border: 2px solid #667eea;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .nav a:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .nav a.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .welcome-section h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+        
+        .welcome-section p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .feature-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .feature-card ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-card ul li {
+            padding: 8px 0;
+            color: #555;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .feature-card ul li:before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .feature-card .action-btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .feature-card .action-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        
+        .super-admin-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>🏭 Device Management System</h1>
+                <p>Industrial Device Management System</p>
+            </div>
+            <div class="user-info">
+                <div class="admin-name" id="adminName">Loading...</div>
+                <div class="admin-type" id="adminType"></div>
+                <a href="#" class="logout-btn" onclick="logout()">Logout</a>
+            </div>
+        </div>
+        
+        <nav class="nav">
+            <a href="/home" class="active">Home</a>
+            <a href="/device">Device Management</a>
+            <a href="/assRecord">Assembly Line Monitoring</a>
+            <a href="/check">Quality Inspection</a>
+            <a href="/deviceAdmin" id="deviceAdminLink" style="display: none;">Device Admin Management</a>
+            <a href="/api-docs" target="_blank" style="display: none;">API Documentation</a>
+        </nav>
+        
+        <div class="content">
+            <div class="welcome-section">
+                <h2>Welcome to Device Management System</h2>
+                <p id="welcomeText">Loading...</p>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>📦 Device Management</h3>
+                    <p>Complete device information management</p>
+                    <ul>
+                        <li>Device Information Query</li>
+                        <li>Device Addition</li>
+                        <li>Device Information Update</li>
+                        <li>Device Deletion</li>
+                    </ul>
+                    <a href="/device" class="action-btn">Enter Management</a>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🔧 Assembly Line Monitoring</h3>
+                    <p>Real-time monitoring of assembly line status</p>
+                    <ul>
+                        <li>Assembly Record Query</li>
+                        <li>Assembly Record Addition</li>
+                        <li>Assembly Record Deletion</li>
+                        <li>Real-time Status Monitoring</li>
+                    </ul>
+                    <a href="/assRecord" class="action-btn">Enter Monitoring</a>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>✅ Quality Inspection</h3>
+                    <p>Component quality inspection management</p>
+                    <ul>
+                        <li>Inspection Record Query</li>
+                        <li>Inspection Record Addition</li>
+                        <li>Inspection Result Statistics</li>
+                        <li>Quality Analysis Report</li>
+                    </ul>
+                    <a href="/check" class="action-btn">Enter Inspection</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Check login status
+        async function checkLogin() {
+            try {
+                const response = await fetch('/api/login/info');
+                const result = await response.json();
+                
+                if (result.code === '1' && result.data) {
+                    const adminName = result.data.adminName;
+                    const adminType = result.data.adminType;
+                    const adminId = result.data.adminId;
+                    
+                    document.getElementById('adminName').textContent = adminName + ' (ID: ' + adminId + ')';
+                    
+                    if (adminType === 'super') {
+                        document.getElementById('adminType').innerHTML = 'Super Admin <span class="super-admin-badge">SUPER</span>';
+                        document.getElementById('welcomeText').textContent = 'You have all permissions to manage all devices, assembly records, quality inspection data, and device administrators.';
+                        document.getElementById('deviceAdminLink').style.display = 'inline-block';
+                    } else {
+                        document.getElementById('adminType').textContent = 'Device Admin';
+                        document.getElementById('welcomeText').textContent = 'You can only manage devices and related data assigned to you.';
+                        document.getElementById('deviceAdminLink').style.display = 'none';
+                    }
+                } else {
+                    // Not logged in, redirect to login page
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Failed to check login status:', error);
+                window.location.href = '/login';
+            }
+        }
+        
+        // Logout
+        async function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                try {
+                    await fetch('/api/logout');
+                    window.location.href = '/login';
+                } catch (error) {
+                    console.error('Logout failed:', error);
+                }
+            }
+        }
+        
+        // Check login status when page loads
+        checkLogin();
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.mgt.device.dao.AssRecordDao">
+    <select id="queryAssRecord" resultType="cn.mgt.device.bean.AssRecordDO" parameterType="cn.mgt.device.bean.AssRecordDO">
+        select id, workstation_id as workstationId, part_id as partId, part_type as partType, 
+               DATE_FORMAT(assembly_date_time, '%Y-%m-%d %H:%i:%s') as assemblyDateTime,
+               assembly_status as assemblyStatus, detail, device_id as deviceId
+        from assembly_records
+        where 1 = 1
+        <if test="workstationId!=null"> and workstation_id=#{workstationId}</if>
+        <if test="partType!=null">and part_type=#{partType}</if>
+        <if test="assemblyDateTime!=null">and assembly_date_time=#{assemblyDateTime}</if>
+        <if test="deviceId!=null">and device_id=#{deviceId}</if>
+    </select>
+
+    <insert id="addAssRecord" useGeneratedKeys="true" keyProperty="id" keyColumn="id" parameterType="cn.mgt.device.bean.AssRecordDO">
+        insert into
+        assembly_records(workstation_id,part_id,part_type,assembly_date_time,assembly_status,detail,device_id)
+        values(#{workstationId},#{partId},#{partType},STR_TO_DATE(#{assemblyDateTime},'%Y-%m-%d %H:%i:%s'),#{assemblyStatus},#{detail},#{deviceId})
+    </insert>
+
+    <!--删除-->
+    <delete id="deleteAssRecord">
+        delete from
+        assembly_records
+        where id = #{id}
+    </delete>
+
+    <select id="getAssRecordById" resultType="cn.mgt.device.bean.AssRecordDO">
+        select id, workstation_id as workstationId, part_id as partId, part_type as partType, 
+               DATE_FORMAT(assembly_date_time, '%Y-%m-%d %H:%i:%s') as assemblyDateTime,
+               assembly_status as assemblyStatus, detail, device_id as deviceId
+        from assembly_records
+        where id = #{id}
+    </select>
+
+    <select id="queryAssRecordByDeviceIds" resultType="cn.mgt.device.bean.AssRecordDO">
+        select id, workstation_id as workstationId, part_id as partId, part_type as partType, 
+               DATE_FORMAT(assembly_date_time, '%Y-%m-%d %H:%i:%s') as assemblyDateTime,
+               assembly_status as assemblyStatus, detail, device_id as deviceId
+        from assembly_records
+        where 1 = 1
+        <if test="deviceIds!=null and deviceIds.size() > 0">
+            and device_id in
+            <foreach collection="deviceIds" item="deviceId" open="(" separator="," close=")">
+                #{deviceId}
+            </foreach>
+        </if>
+        <if test="query.workstationId!=null"> and workstation_id=#{query.workstationId}</if>
+        <if test="query.partType!=null">and part_type=#{query.partType}</if>
+        <if test="query.assemblyDateTime!=null">and assembly_date_time=#{query.assemblyDateTime}</if>
+        <if test="query.partId!=null">and part_id=#{query.partId}</if>
+    </select>
+
+    <update id="updateAssRecord" parameterType="cn.mgt.device.bean.AssRecordDO">
+        update assembly_records
+        set workstation_id=#{workstationId},
+            part_id=#{partId},
+            part_type=#{partType},
+            assembly_date_time=STR_TO_DATE(#{assemblyDateTime},'%Y-%m-%d %H:%i:%s'),
+            assembly_status=#{assemblyStatus},
+            detail=#{detail}
+            <if test="deviceId!=null">,device_id=#{deviceId}</if>
+        where id = #{id}
+    </update>
+
+</mapper>

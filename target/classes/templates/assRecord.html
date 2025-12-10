@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assembly Line Monitoring - Device Management System</title>
+    <link rel="stylesheet" href="/static/css/common.css">
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 1.8em;
+        }
+        
+        .nav {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .nav a {
+            display: inline-block;
+            padding: 8px 20px;
+            margin-right: 10px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 5px;
+            border: 1px solid #667eea;
+            transition: all 0.3s;
+        }
+        
+        .nav a:hover, .nav a.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .search-form {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .search-form input, .search-form select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow: auto;
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Assembly Line Monitoring</h1>
+            <div>
+                <button class="btn btn-primary" onclick="showAddModal()">+ Add Record</button>
+            </div>
+        </div>
+        
+        <nav class="nav">
+            <a href="/">Home</a>
+            <a href="/device">Device Management</a>
+            <a href="/assRecord" class="active">Assembly Line Monitoring</a>
+            <a href="/check">Quality Inspection</a>
+            <a href="/api-docs" target="_blank" style="display: none;">API Documentation</a>
+        </nav>
+        
+        <div class="content">
+            <div id="alert"></div>
+            
+            <div class="toolbar">
+                <div class="search-form">
+                    <input type="number" id="searchDeviceId" placeholder="Device ID">
+                    <input type="text" id="searchWorkstationId" placeholder="Workstation ID">
+                    <select id="searchPartType">
+                        <option value="">All Types</option>
+                        <option value="1">Type A</option>
+                        <option value="2">Type B</option>
+                        <option value="3">Type C</option>
+                    </select>
+                    <input type="datetime-local" id="searchDateTime">
+                    <button class="btn btn-primary" onclick="searchRecords()">Search</button>
+                    <button class="btn btn-success" onclick="loadRecords()">Reset</button>
+                </div>
+            </div>
+            
+            <table id="recordTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Device ID</th>
+                        <th>Workstation ID</th>
+                        <th>Part ID</th>
+                        <th>Part Type</th>
+                        <th>Assembly Time</th>
+                        <th>Assembly Status</th>
+                        <th>Detail</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="recordTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- 添加/编辑模态框 -->
+    <div id="recordModal" class="modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #e9ecef;">
+                <h2 style="color: #667eea;" id="modalTitle">Add Assembly Record</h2>
+                <span style="font-size: 28px; font-weight: bold; cursor: pointer; color: #aaa;" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="recordForm">
+                <input type="hidden" id="recordId">
+                <div class="form-group">
+                    <label>Device ID *</label>
+                    <input type="number" id="deviceId" required>
+                </div>
+                <div class="form-group">
+                    <label>Workstation ID *</label>
+                    <input type="text" id="workstationId" required>
+                </div>
+                <div class="form-group">
+                    <label>Part ID *</label>
+                    <input type="text" id="partId" required>
+                </div>
+                <div class="form-group">
+                    <label>Part Type *</label>
+                    <select id="partType" required>
+                        <option value="1">Type A</option>
+                        <option value="2">Type B</option>
+                        <option value="3">Type C</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Assembly Time *</label>
+                    <input type="datetime-local" id="assemblyDateTime" required>
+                </div>
+                <div class="form-group">
+                    <label>Assembly Status *</label>
+                    <select id="assemblyStatus" required>
+                        <option value="1">Normal</option>
+                        <option value="0">Abnormal</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Detail</label>
+                    <textarea id="detail"></textarea>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button type="button" class="btn btn-success" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = '/api/assRecord';
+        
+        window.onload = function() {
+            loadRecords();
+        };
+        
+        async function loadRecords() {
+            try {
+                const response = await fetch(API_BASE + '/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
+                
+                const records = await response.json();
+                renderTable(records);
+            } catch (error) {
+                console.error('Load failed:', error);
+                showAlert('Load Failed: ' + error.message, 'error');
+            }
+        }
+        
+        async function searchRecords() {
+            const searchData = {
+                deviceId: document.getElementById('searchDeviceId').value ? parseInt(document.getElementById('searchDeviceId').value) : null,
+                workstationId: document.getElementById('searchWorkstationId').value || null,
+                partType: document.getElementById('searchPartType').value || null,
+                assemblyDateTime: document.getElementById('searchDateTime').value ? formatDateTimeLocal(document.getElementById('searchDateTime').value) : null
+            };
+            
+            Object.keys(searchData).forEach(key => {
+                if (searchData[key] === null || searchData[key] === '') {
+                    delete searchData[key];
+                }
+            });
+            
+            try {
+                const response = await fetch(API_BASE + '/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(searchData)
+                });
+                
+                const records = await response.json();
+                renderTable(records);
+                showAlert('Search Success', 'success');
+            } catch (error) {
+                console.error('Search failed:', error);
+                showAlert('Search Failed: ' + error.message, 'error');
+            }
+        }
+        
+        function renderTable(records) {
+            const tbody = document.getElementById('recordTableBody');
+            tbody.innerHTML = '';
+            
+            if (!records || records.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #999;">No Data</td></tr>';
+                return;
+            }
+            
+            records.forEach(record => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${record.id || ''}</td>
+                    <td>${record.deviceId || '-'}</td>
+                    <td>${record.workstationId || ''}</td>
+                    <td>${record.partId || ''}</td>
+                    <td>${record.partType || ''}</td>
+                    <td>${formatDateTime(record.assemblyDateTime)}</td>
+                    <td>${record.assemblyStatus == '1' || record.assemblyStatus == 1 ? '<span style="color: green;">Normal</span>' : '<span style="color: red;">Abnormal</span>'}</td>
+                    <td>${record.detail || '-'}</td>
+                    <td>
+                        <button class="btn btn-primary" onclick="editRecord(${record.id}, ${JSON.stringify(record).replace(/"/g, '&quot;')})">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteRecord(${record.id})">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        function showAddModal() {
+            document.getElementById('modalTitle').textContent = 'Add Assembly Record';
+            document.getElementById('recordForm').reset();
+            document.getElementById('recordId').value = '';
+            document.getElementById('recordModal').style.display = 'block';
+        }
+        
+        function editRecord(id, record) {
+            document.getElementById('modalTitle').textContent = 'Edit Assembly Record';
+            document.getElementById('recordId').value = id;
+            document.getElementById('deviceId').value = record.deviceId || '';
+            document.getElementById('workstationId').value = record.workstationId || '';
+            document.getElementById('partId').value = record.partId || '';
+            document.getElementById('partType').value = record.partType || '1';
+            document.getElementById('assemblyDateTime').value = formatDateTimeLocalForInput(record.assemblyDateTime);
+            document.getElementById('assemblyStatus').value = record.assemblyStatus || '1';
+            document.getElementById('detail').value = record.detail || '';
+            document.getElementById('recordModal').style.display = 'block';
+        }
+        
+        async function deleteRecord(id) {
+            if (!confirm('Are you sure you want to delete this record?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(API_BASE + '/deleteAssRecord', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: id })
+                });
+                
+                const result = await response.json();
+                if (result.code === '1') {
+                    showAlert('Delete Success', 'success');
+                    loadRecords();
+                } else {
+                    showAlert('Delete Failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Delete failed:', error);
+                showAlert('Delete Failed: ' + error.message, 'error');
+            }
+        }
+        
+        document.getElementById('recordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('recordId').value;
+            const recordData = {
+                deviceId: parseInt(document.getElementById('deviceId').value),
+                workstationId: document.getElementById('workstationId').value,
+                partId: document.getElementById('partId').value,
+                partType: document.getElementById('partType').value,
+                assemblyDateTime: formatDateTimeLocal(document.getElementById('assemblyDateTime').value),
+                assemblyStatus: document.getElementById('assemblyStatus').value,
+                detail: document.getElementById('detail').value || ''
+            };
+            
+            if (id) {
+                recordData.id = parseInt(id);
+            }
+            
+            try {
+                const url = id ? API_BASE + '/updateAssRecord' : API_BASE + '/addAssRecord';
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(recordData)
+                });
+                
+                const result = await response.json();
+                if (result.code === '1') {
+                    showAlert(id ? 'Update Success' : 'Add Success', 'success');
+                    closeModal();
+                    // 延迟一下再刷新，确保数据已保存
+                    setTimeout(() => {
+                        loadRecords();
+                    }, 100);
+                } else {
+                    showAlert((id ? 'Update' : 'Add') + ' Failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Operation failed:', error);
+                showAlert('Operation Failed: ' + error.message, 'error');
+            }
+        });
+        
+        function closeModal() {
+            document.getElementById('recordModal').style.display = 'none';
+        }
+        
+        window.onclick = function(event) {
+            const modal = document.getElementById('recordModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        };
+        
+        function formatDateTime(dateStr) {
+            if (!dateStr) return '-';
+            return dateStr.replace('T', ' ').substring(0, 19);
+        }
+        
+        function formatDateTimeLocal(dateStr) {
+            if (!dateStr) return '';
+            return dateStr.replace('T', ' ') + ':00';
+        }
+        
+        function formatDateTimeLocalForInput(dateStr) {
+            if (!dateStr) return '';
+            // Convert "2025-01-01 12:00:00" to "2025-01-01T12:00" for datetime-local input
+            return dateStr.replace(' ', 'T').substring(0, 16);
+        }
+        
+        function showAlert(message, type) {
+            const alertDiv = document.getElementById('alert');
+            alertDiv.textContent = message;
+            alertDiv.className = 'alert alert-' + type;
+            alertDiv.style.display = 'block';
+            setTimeout(() => {
+                alertDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

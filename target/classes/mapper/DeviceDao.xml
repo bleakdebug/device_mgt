@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.mgt.device.dao.DeviceDao">
+    <select id="queryDevice" resultType="cn.mgt.device.bean.DeviceDO" parameterType="cn.mgt.device.bean.DeviceDO">
+        select id,no,type,model,status,purchase_time AS purchaseTime,dumpe_time AS dumpeTime,admin_id AS adminId
+        from device
+        where 1 = 1
+        <if test="no!=null"> and no=#{no}</if>
+        <if test="type!=null">and type=#{type}</if>
+        <if test="model!=null">and model=#{model}</if>
+        <if test="status!=null">and status=#{status}</if>
+        <if test="adminId!=null">and admin_id=#{adminId}</if>
+    </select>
+
+    <insert id="addDevice" parameterType="cn.mgt.device.bean.DeviceDO">
+        insert into
+        device(id,no,type,model,status,purchase_time,dumpe_time,admin_id)
+        values(#{id},#{no},#{type},#{model},#{status},#{purchaseTime},#{dumpeTime},#{adminId})
+    </insert>
+
+    <update id="updateDevice" parameterType="cn.mgt.device.bean.DeviceDO">
+        update device
+            <set>
+                <if test="no!=null">no=#{no},</if>
+                <if test="type!=null">type=#{type},</if>
+                <if test="model!=null">model=#{model},</if>
+                <if test="status!=null">status=#{status},</if>
+                <if test="purchaseTime!=null">purchase_time=#{purchaseTime},</if>
+                <if test="dumpeTime!=null">dumpe_time=#{dumpeTime}</if>
+            </set>
+        where id = #{id}
+    </update>
+
+    <!--删除-->
+    <delete id="deleteDevice">
+        delete from
+        device
+        where id = #{id}
+    </delete>
+
+    <select id="getDeviceById" resultType="cn.mgt.device.bean.DeviceDO">
+        select id,no,type,model,status,purchase_time AS purchaseTime,dumpe_time AS dumpeTime,admin_id AS adminId
+        from device
+        where id = #{id}
+    </select>
+</mapper>

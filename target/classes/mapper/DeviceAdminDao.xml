@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.mgt.device.dao.DeviceAdminDao">
+    <select id="login" resultType="cn.mgt.device.bean.DeviceAdminDO" parameterType="cn.mgt.device.bean.DeviceAdminDO">
+        select id, name, password
+        from device_admin
+        where id = #{id} and password = #{password}
+    </select>
+
+    <select id="getById" resultType="cn.mgt.device.bean.DeviceAdminDO">
+        select id, name, password
+        from device_admin
+        where id = #{id}
+    </select>
+
+    <select id="queryDeviceAdmin" resultType="cn.mgt.device.bean.DeviceAdminDO" parameterType="cn.mgt.device.bean.DeviceAdminDO">
+        select id, name, password
+        from device_admin
+        where 1 = 1
+        <if test="id != 0"> and id = #{id}</if>
+        <if test="name != null and name != ''"> and name like concat('%', #{name}, '%')</if>
+    </select>
+
+    <insert id="addDeviceAdmin" useGeneratedKeys="true" keyProperty="id" keyColumn="id" parameterType="cn.mgt.device.bean.DeviceAdminDO">
+        insert into device_admin(name, password)
+        values(#{name}, #{password})
+    </insert>
+
+    <update id="updateDeviceAdmin" parameterType="cn.mgt.device.bean.DeviceAdminDO">
+        update device_admin
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="password != null">password = #{password}</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDeviceAdmin">
+        delete from device_admin
+        where id = #{id}
+    </delete>
+</mapper>
+

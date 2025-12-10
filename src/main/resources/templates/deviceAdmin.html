@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Admin Management - Device Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 1.8em;
+        }
+        
+        .nav {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .nav a {
+            display: inline-block;
+            padding: 8px 20px;
+            margin-right: 10px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 5px;
+            border: 1px solid #667eea;
+            transition: all 0.3s;
+        }
+        
+        .nav a:hover, .nav a.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .search-form {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .search-form input, .search-form select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👥 Device Admin Management</h1>
+            <div>
+                <button class="btn btn-primary" onclick="showAddModal()">+ Add Admin</button>
+            </div>
+        </div>
+        
+        <nav class="nav">
+            <a href="/home">Home</a>
+            <a href="/device">Device Management</a>
+            <a href="/assRecord">Assembly Line Monitoring</a>
+            <a href="/check">Quality Inspection</a>
+            <a href="/deviceAdmin" class="active">Device Admin Management</a>
+            <a href="/api-docs" target="_blank" style="display: none;">API Documentation</a>
+        </nav>
+        
+        <div class="content">
+            <div id="alert"></div>
+            
+            <div class="toolbar">
+                <div class="search-form">
+                    <input type="number" id="searchId" placeholder="Admin ID">
+                    <input type="text" id="searchName" placeholder="Admin Name">
+                    <button class="btn btn-primary" onclick="searchAdmins()">Search</button>
+                    <button class="btn btn-success" onclick="loadAdmins()">Reset</button>
+                </div>
+            </div>
+            
+            <table id="adminTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Password</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="adminTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- 添加/编辑模态框 -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #e9ecef;">
+                <h2 style="color: #667eea;" id="modalTitle">Add Device Admin</h2>
+                <span style="font-size: 28px; font-weight: bold; cursor: pointer; color: #aaa;" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="adminForm">
+                <input type="hidden" id="adminId">
+                <div class="form-group">
+                    <label>Admin Name *</label>
+                    <input type="text" id="adminName" required>
+                </div>
+                <div class="form-group">
+                    <label>Password *</label>
+                    <input type="password" id="adminPassword" required>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button type="button" class="btn btn-success" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = '/api/deviceAdmin';
+        
+        window.onload = function() {
+            loadAdmins();
+        };
+        
+        async function loadAdmins() {
+            try {
+                const response = await fetch(API_BASE + '/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
+                
+                const admins = await response.json();
+                renderTable(admins);
+                showAlert('Load Success', 'success');
+            } catch (error) {
+                console.error('Load failed:', error);
+                showAlert('Load Failed: ' + error.message, 'error');
+            }
+        }
+        
+        async function searchAdmins() {
+            const searchData = {
+                id: document.getElementById('searchId').value ? parseInt(document.getElementById('searchId').value) : 0,
+                name: document.getElementById('searchName').value || null
+            };
+            
+            if (searchData.id === 0) {
+                delete searchData.id;
+            }
+            if (!searchData.name) {
+                delete searchData.name;
+            }
+            
+            try {
+                const response = await fetch(API_BASE + '/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(searchData)
+                });
+                
+                const admins = await response.json();
+                renderTable(admins);
+                showAlert('Search Success', 'success');
+            } catch (error) {
+                console.error('Search failed:', error);
+                showAlert('Search Failed: ' + error.message, 'error');
+            }
+        }
+        
+        function renderTable(admins) {
+            const tbody = document.getElementById('adminTableBody');
+            tbody.innerHTML = '';
+            
+            if (!admins || admins.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">No Data</td></tr>';
+                return;
+            }
+            
+            admins.forEach(admin => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${admin.id || ''}</td>
+                    <td>${admin.name || ''}</td>
+                    <td>${'*'.repeat(admin.password ? admin.password.length : 0)}</td>
+                    <td>
+                        <button class="btn btn-primary" onclick="editAdmin(${admin.id}, '${admin.name}', '${admin.password}')">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteAdmin(${admin.id})">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        function showAddModal() {
+            document.getElementById('modalTitle').textContent = 'Add Device Admin';
+            document.getElementById('adminForm').reset();
+            document.getElementById('adminId').value = '';
+            document.getElementById('adminModal').style.display = 'block';
+        }
+        
+        function editAdmin(id, name, password) {
+            document.getElementById('modalTitle').textContent = 'Edit Device Admin';
+            document.getElementById('adminId').value = id;
+            document.getElementById('adminName').value = name;
+            document.getElementById('adminPassword').value = password;
+            document.getElementById('adminModal').style.display = 'block';
+        }
+        
+        async function deleteAdmin(id) {
+            if (!confirm('Are you sure you want to delete this admin?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(API_BASE + '/delete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: id })
+                });
+                
+                const result = await response.json();
+                if (result.code === '1') {
+                    showAlert('Delete Success', 'success');
+                    loadAdmins();
+                } else {
+                    showAlert('Delete Failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Delete failed:', error);
+                showAlert('Delete Failed: ' + error.message, 'error');
+            }
+        }
+        
+        document.getElementById('adminForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('adminId').value;
+            const adminData = {
+                name: document.getElementById('adminName').value,
+                password: document.getElementById('adminPassword').value
+            };
+            
+            if (id) {
+                adminData.id = parseInt(id);
+            }
+            
+            try {
+                const url = id ? API_BASE + '/update' : API_BASE + '/add';
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(adminData)
+                });
+                
+                const result = await response.json();
+                if (result.code === '1') {
+                    showAlert(id ? 'Update Success' : 'Add Success', 'success');
+                    closeModal();
+                    loadAdmins();
+                } else {
+                    showAlert((id ? 'Update' : 'Add') + ' Failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Operation failed:', error);
+                showAlert('Operation Failed: ' + error.message, 'error');
+            }
+        });
+        
+        function closeModal() {
+            document.getElementById('adminModal').style.display = 'none';
+        }
+        
+        window.onclick = function(event) {
+            const modal = document.getElementById('adminModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        };
+        
+        function showAlert(message, type) {
+            const alertDiv = document.getElementById('alert');
+            alertDiv.textContent = message;
+            alertDiv.className = 'alert alert-' + type;
+            alertDiv.style.display = 'block';
+            setTimeout(() => {
+                alertDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.mgt.device.dao.CheckDao">
+    <select id="queryCheck" resultType="cn.mgt.device.bean.CheckDO">
+        select id,part_id as partId,project_name as projectName,result,time,remark
+        from quality_check
+        where 1 = 1
+        <if test="query.partId!=null"> and part_id=#{query.partId}</if>
+        <if test="query.projectName!=null">and project_name=#{query.projectName}</if>
+        <if test="query.result!=null">and result=#{query.result}</if>
+        <if test="partIds!=null and partIds.size() > 0">
+            and part_id in
+            <foreach collection="partIds" item="partId" open="(" separator="," close=")">
+                #{partId}
+            </foreach>
+        </if>
+    </select>
+
+    <insert id="addCheck" useGeneratedKeys="true" keyProperty="id" keyColumn="id" parameterType="cn.mgt.device.bean.CheckDO">
+        insert into
+        quality_check(part_id,project_name,result,time,remark)
+        values(#{partId},#{projectName},#{result},STR_TO_DATE(#{time},'%Y-%m-%d %H:%i:%s'),#{remark})
+    </insert>
+
+    <update id="updateCheck" parameterType="cn.mgt.device.bean.CheckDO">
+        update quality_check
+        set part_id=#{partId},
+            project_name=#{projectName},
+            result=#{result},
+            time=STR_TO_DATE(#{time},'%Y-%m-%d %H:%i:%s'),
+            remark=#{remark}
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCheck">
+        delete from quality_check
+        where id = #{id}
+    </delete>
+
+    <select id="getCheckById" resultType="cn.mgt.device.bean.CheckDO">
+        select id,part_id as partId,project_name as projectName,result,time,remark
+        from quality_check
+        where id = #{id}
+    </select>
+
+</mapper>
